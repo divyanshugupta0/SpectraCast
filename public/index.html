@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectra Cast</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-desktop"></i> Spectra Cast</h1>
+            <div class="connection-status" id="connectionStatus">
+                <i class="fas fa-circle"></i> <span>Connecting...</span>
+            </div>
+        </header>
+        
+        <div class="controls">
+            <div class="share-section">
+                <h2><i class="fas fa-share-alt"></i> Share Your Screen</h2>
+                <div class="quality-controls">
+                    <label>Quality:</label>
+                    <select id="qualitySelect">
+                        <option value="720p">HD (720p)</option>
+                        <option value="1080p" selected>Full HD (1080p)</option>
+                        <option value="4k">4K (2160p)</option>
+                    </select>
+                    <label>FPS:</label>
+                    <select id="fpsSelect">
+                        <option value="15">15 FPS</option>
+                        <option value="30" selected>30 FPS</option>
+                        <option value="60">60 FPS</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button id="startShare"><i class="fas fa-play"></i> Start Sharing</button>
+                    <button id="stopShare" disabled><i class="fas fa-stop"></i> Stop Sharing</button>
+                    <button id="pauseShare" disabled><i class="fas fa-pause"></i> Pause</button>
+                </div>
+                <div id="sessionInfo" class="hidden">
+                    <div class="session-card">
+                        <p><strong>Session ID:</strong> <span id="sessionId"></span></p>
+                        <button id="copySession"><i class="fas fa-copy"></i> Copy ID</button>
+                        <button id="showQrBtn"><i class="fas fa-qrcode"></i> Show QR</button>
+                        <p class="viewers-count">Viewers: <span id="viewerCount">0</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="view-section">
+                <h2><i class="fas fa-eye"></i> View Shared Screen</h2>
+                <div class="join-controls">
+                    <input type="text" id="joinSessionId" placeholder="Enter Session ID">
+                    <button id="joinSession"><i class="fas fa-sign-in-alt"></i> Join Session</button>
+                    <button id="qrScanBtn" class="qr-scan-btn"><i class="fas fa-qrcode"></i> Scan QR</button>
+                    <button id="exitSession" class="exit-btn hidden"><i class="fas fa-sign-out-alt"></i> Exit Session</button>
+                </div>
+                <div class="viewer-controls hidden" id="viewerControls">
+                    <button id="fullscreen"><i class="fas fa-expand"></i> Fullscreen</button>
+                    <button id="screenshot"><i class="fas fa-camera"></i> Screenshot</button>
+                    <button id="toggleAudio"><i class="fas fa-volume-up"></i> Audio</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="video-container">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay muted class="hidden"></video>
+                <video id="remoteVideo" autoplay class="hidden"></video>
+                <div class="video-overlay">
+                    <div class="stats" id="stats"></div>
+                    <div class="controls-overlay">
+                        <button id="pipToggle" class="overlay-btn"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="status" class="status-bar">
+                <i class="fas fa-info-circle"></i> Ready to share or view
+            </div>
+        </div>
+        
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-header">
+                <h3><i class="fas fa-comments"></i> Chat</h3>
+                <button id="toggleChat"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <button id="chatToggle" class="chat-toggle"><i class="fas fa-comments"></i></button>
+        
+        <!-- Notification Container -->
+        <div id="notificationContainer" class="notification-container"></div>
+        
+        <!-- QR Scanner Popup -->
+        <div id="qrPopup" class="qr-popup hidden">
+            <div class="qr-popup-content">
+                <div class="qr-popup-header">
+                    <h3><i class="fas fa-qrcode"></i> Scan QR Code</h3>
+                    <button id="closeQrPopup" class="close-btn">&times;</button>
+                </div>
+                <div class="qr-scanner-container">
+                    <video id="qrVideo" autoplay></video>
+                    <div class="qr-overlay">
+                        <div class="qr-frame"></div>
+                    </div>
+                </div>
+                <div class="qr-popup-footer">
+                    <p>Position the QR code within the frame</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- QR Display Popup -->
+        <div id="qrDisplayPopup" class="qr-popup hidden">
+            <div class="qr-popup-content">
+                <div class="qr-popup-header">
+                    <h3><i class="fas fa-qrcode"></i> Session QR Code</h3>
+                    <button id="closeQrDisplay" class="close-btn">&times;</button>
+                </div>
+                <div class="qr-display-container">
+                    <canvas id="qrCanvas" width="200" height="200"></canvas>
+                </div>
+                <div class="qr-popup-footer">
+                    <p>Share this QR code for others to join</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>Developed by <strong>Divyanshu Gupta</strong></p>
+    </footer>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="qr-scanner.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
