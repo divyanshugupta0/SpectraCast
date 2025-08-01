@@ -69,8 +69,17 @@ let isViewing = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    updateConnectionStatus('connected');
+    updateConnectionStatus('connecting');
     setupEventListeners();
+});
+
+// Fix connection status on socket connect
+socket.on('connect', () => {
+    updateConnectionStatus('connected');
+});
+
+socket.on('disconnect', () => {
+    updateConnectionStatus('disconnected');
 });
 
 function setupEventListeners() {
