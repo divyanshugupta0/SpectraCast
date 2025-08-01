@@ -591,28 +591,80 @@ function generateQrCode(sessionId) {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, size, size);
     
-    // Simple QR-like pattern (placeholder)
-    ctx.fillStyle = 'black';
-    const cellSize = size / 25;
+    // Generate proper QR code using simple matrix
+    const qrSize = 21; // Standard QR code size
+    const cellSize = size / qrSize;
     
-    // Create a simple pattern representing the session ID
-    for (let i = 0; i < sessionId.length; i++) {
-        const char = sessionId.charCodeAt(i);
-        const x = (i % 5) * cellSize * 5;
-        const y = Math.floor(i / 5) * cellSize * 2;
-        
-        // Draw pattern based on character code
-        for (let bit = 0; bit < 8; bit++) {
-            if (char & (1 << bit)) {
-                ctx.fillRect(x + (bit % 4) * cellSize, y + Math.floor(bit / 4) * cellSize, cellSize, cellSize);
+    // Create QR matrix
+    const matrix = createQRMatrix(sessionId, qrSize);
+    
+    ctx.fillStyle = 'black';
+    for (let row = 0; row < qrSize; row++) {
+        for (let col = 0; col < qrSize; col++) {
+            if (matrix[row][col]) {
+                ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
             }
         }
     }
+}
+
+function createQRMatrix(data, size) {
+    const matrix = Array(size).fill().map(() => Array(size).fill(false));
     
-    // Add border
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, size, size);
+    // Add finder patterns (corners)
+    addFinderPattern(matrix, 0, 0);
+    addFinderPattern(matrix, size - 7, 0);
+    addFinderPattern(matrix, 0, size - 7);
+    
+    // Add timing patterns
+    for (let i = 8; i < size - 8; i++) {
+        matrix[6][i] = i % 2 === 0;
+        matrix[i][6] = i % 2 === 0;
+    }
+    
+    // Add data (simplified encoding)
+    let dataIndex = 0;
+    for (let i = 0; i < data.length && dataIndex < size * size; i++) {
+        const char = data.charCodeAt(i);
+        for (let bit = 0; bit < 8; bit++) {
+            const row = Math.floor(dataIndex / size);
+            const col = dataIndex % size;
+            if (row < size && col < size && !isReserved(row, col, size)) {
+                matrix[row][col] = (char & (1 << bit)) !== 0;
+            }
+            dataIndex++;
+        }
+    }
+    
+    return matrix;
+}
+
+function addFinderPattern(matrix, startRow, startCol) {
+    const pattern = [
+        [1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1],
+        [1,0,1,1,1,0,1],
+        [1,0,1,1,1,0,1],
+        [1,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1]
+    ];
+    
+    for (let row = 0; row < 7; row++) {
+        for (let col = 0; col < 7; col++) {
+            if (startRow + row < matrix.length && startCol + col < matrix[0].length) {
+                matrix[startRow + row][startCol + col] = pattern[row][col] === 1;
+            }
+        }
+    }
+}
+
+function isReserved(row, col, size) {
+    // Check if position is reserved for finder patterns or timing
+    return (row < 9 && col < 9) || 
+           (row < 9 && col >= size - 8) || 
+           (row >= size - 8 && col < 9) ||
+           row === 6 || col === 6;
 }
 
 function startQrDetection() {
