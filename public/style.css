@@ -587,6 +587,12 @@ video {
 }
 
 @media (max-width: 768px) {
+    .share-section {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
     .controls {
         grid-template-columns: 1fr;
     }
