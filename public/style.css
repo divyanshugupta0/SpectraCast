@@ -610,6 +610,25 @@ video {
         color: #3498db;
         margin-right: 8px;
     }
+    
+    header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        white-space: nowrap;
+    }
+    
+    .connection-status {
+        font-size: 0.9em;
+    }
+    
+    .connection-status span {
+        font-size: 0.85em;
+    }
 }
 
 @media (max-width: 768px) {
